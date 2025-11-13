@@ -22,7 +22,7 @@ const RelatedProducts = ({ category, subCategory }) => {
       }
 
       // Exclude duplicates and limit to 5
-      setRelated(productsCopy.slice(0, 5));
+      setRelated(productsCopy.slice(0,4));
     }
   }, [products, category, subCategory]);
 

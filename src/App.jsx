@@ -11,7 +11,7 @@ import Collection from "./pages/Collection";
 import CheckoutPage from "./pages/CheckoutPage";
 import Orders from "./pages/Orders";   // ✅ Re-enabled
 import Logout from "./COMPONENTS/Logout";
-
+import OrderDetailsPage from "./pages/OrderDetailsPage";
 import Navbar from "./COMPONENTS/Navbar";
 import Footer from "./COMPONENTS/Footer";
 import SearchBar from "./COMPONENTS/SearchBar";
@@ -33,6 +33,7 @@ const App = () => {
         <Route path="/orders" element={<Orders />} />  {/* ✅ Fixed route */}
         <Route path="/logout" element={<Logout />} />
         <Route path="*" element={<NotFound />} />      {/* optional catch-all */}
+        <Route path="/order/:orderId" element={<OrderDetailsPage />} />
       </Routes>
       <Footer />
     </div>

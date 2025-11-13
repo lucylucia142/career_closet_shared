@@ -14,13 +14,13 @@ const Product = () => {
   // Fetch product directly from MongoDB backend
   const fetchProductData = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/products/${productId}`);
+      const res = await fetch(`http://localhost:3000/products/${productId}`);
       if (!res.ok) throw new Error('Product not found');
       const data = await res.json();
 
       setProductData(data);
       if (data.image && data.image.length > 0) {
-        setImage(data.image[0]);
+        setImage(data.image);
       }
     } catch (err) {
       console.error('Failed to fetch product:', err);
@@ -97,8 +97,8 @@ const Product = () => {
 
           <button
             onClick={() => {
-              if (!size) return alert('Please select a size first.');
-              addToCart(productData._id, size);
+              // if (!size) return alert('Please select a size first.');
+              addToCart(productData._id);
             }}
             className="bg-black text-white px-8 py-3 text-sm uppercase hover:bg-gray-800"
           >

@@ -2,319 +2,290 @@ import React, { useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Title from '../COMPONENTS/Title';
-import { assets } from '../assets/assets';
 
 const CheckoutPage = () => {
-  const { products, cartItems, currency, delivery_fee, getCartAmount, updateQuantity, cartLoading, cartError, isAuthenticated, user } = useContext(ShopContext);
-  const navigate = useNavigate();
-  const [shippingInfo, setShippingInfo] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    country: '',
-  });
-  const [paymentMethod, setPaymentMethod] = useState('creditCard');
-  const [error, setError] = useState('');
+  const {
+    products,
+    cartItems,
+    currency,
+    getCartAmount,
+    delivery_fee,
+    user,
+    isAuthenticated,
+    clearCartState,
+    // Assuming updateQuantity is available, though unused in the final code block:
+    // updateQuantity, 
+  } = useContext(ShopContext);
 
-  // Get cart items with product details and size
-  const cartProducts = [];
-  for (const itemId in cartItems) {
-    for (const size in cartItems[itemId]) {
-      if (cartItems[itemId][size] > 0) {
-        const product = products.find((p) => p._id === itemId);
-        if (product) {
-          cartProducts.push({
-            _id: itemId,
-            size,
-            quantity: cartItems[itemId][size],
-            ...product,
-          });
-        }
-      }
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  // 🔑 1. State for Shipping/Billing Information (Pre-fill with user data if available)
+  const [shippingInfo, setShippingInfo] = useState({
+    fullName: user?.name || '',
+    email: user?.email || '',
+    address: user?.address || '',
+    city: user?.city || '',
+    zipCode: user?.zipCode || '',
+    country: user?.country || '',
+  });
+
+  // 🔑 2. State for Payment Information (Card Mockup)
+  const [paymentInfo, setPaymentInfo] = useState({
+    cardNumber: '',
+    cardName: '',
+    expiryDate: '',
+    cvv: '',
+  });
+
+  // Helper function to handle form changes
+  const handleShippingChange = (e) => {
+    setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value });
+    setFormError('');
+  };
+
+  const handlePaymentChange = (e) => {
+    setPaymentInfo({ ...paymentInfo, [e.target.name]: e.target.value });
+    setFormError('');
+  };
+
+  // Build a list of cart items with product details
+  const cartProductList = [];
+  for (const itemId in cartItems) {
+    for (const size in cartItems[itemId]) {
+      const quantity = cartItems[itemId][size];
+      const product = products.find((p) => p._id === itemId);
+      if (product) {
+        cartProductList.push({
+          name: product.name,
+          image: Array.isArray(product.image) ? product.image[0] : product.image,
+          price: product.price,
+          _id: product._id,
+          size,
+          quantity,
+        });
+      }
+    }
+  }
+  
+  // 🔑 Validation check
+  const validateForm = () => {
+    // Simple check for required shipping fields
+    for (const key in shippingInfo) {
+      if (!shippingInfo[key]) {
+        setFormError('All shipping fields are required.');
+        return false;
+      }
+    }
+
+    // Simple check for payment fields (in a real app, this is handled by a secure gateway)
+    if (!paymentInfo.cardNumber || paymentInfo.cardNumber.length < 16) {
+      setFormError('Please enter a valid card number.');
+      return false;
+    }
+    if (!paymentInfo.cvv || paymentInfo.cvv.length < 3) {
+      setFormError('Please enter a valid CVV.');
+      return false;
+    }
+
+    setFormError('');
+    return true;
+  };
+
+  const handleCheckout = async () => {
+    if (!isAuthenticated || !user?._id) {
+      alert('You must be logged in to place an order.');
+      navigate('/login');
+      return;
+    }
+
+    if (cartProductList.length === 0) {
+      alert('Your cart is empty.');
+      return;
+    }
+    
+    // 🔑 Run validation before proceeding
+    if (!validateForm()) {
+        return;
     }
-  }
 
-  // Handle input changes for shipping form
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setShippingInfo((prev) => ({ ...prev, [name]: value }));
-  };
+    setLoading(true);
 
-  // Validate shipping info
-  const validateShippingInfo = () => {
-    return Object.values(shippingInfo).every((field) => field.trim() !== '');
-  };
+    try {
+      // 🔑 Combine user data and new form data for the order
+      const orderDetails = {
+        userId: user._id,
+        items: cartProductList.map(p => ({
+            productId: p._id,
+            name: p.name,
+            image: p.image,
+            price: p.price,
+            size: p.size,
+            quantity: p.quantity,
+        })),
+        totalAmount: getCartAmount() + delivery_fee,
+        shippingAddress: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.zipCode}, ${shippingInfo.country}`,
+        // Note: Payment data is typically handled securely by a payment gateway, 
+        // but we include a flag here for the server.
+        paymentMethod: 'Credit Card',
+        paymentStatus: 'Paid', 
+      };
 
-  // Handle order submission
-  const handlePlaceOrder = async () => {
-    if (!isAuthenticated || !user?._id) {
-      setError('Please log in to place an order.');
-      navigate('/login');
-      return;
-    }
-    if (!validateShippingInfo()) {
-      setError('Please fill in all shipping details.');
-      return;
-    }
-    if (cartProducts.length === 0) {
-      setError('Your cart is empty.');
-      return;
-    }
+      const response = await fetch('http://localhost:3000/orders', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user._id}`, 
+        },
+        body: JSON.stringify(orderDetails),
+      });
 
-    setError('');
-    try {
-      const orderData = {
-        userId: user._id,
-        items: cartItems, // Backend expects { [itemId]: { [size]: quantity } }
-        totalAmount: getCartAmount() + delivery_fee,
-        shippingAddress: shippingInfo,
-        paymentMethod,
-      };
+      if (response.ok) {
+        const data = await response.json();
+        alert('✅ Order placed successfully! You will now be taken to your tracking page.');
+        
+        clearCartState(); 
+        
+        // 🔑 Redirect to the individual order tracking page
+        navigate(`/order/${data._id}`); 
+      } else {
+        const errorData = await response.json();
+        alert(`⚠️ ${errorData.message || 'Something went wrong while placing your order.'}`);
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('❌ Failed to process checkout.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const response = await fetch('http://localhost:3000/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user._id}`,
-        },
-        body: JSON.stringify(orderData),
-      });
+  return (
+    <div className="checkout-page container mx-auto px-4 py-10 max-w-5xl">
+      <Title text1="SECURE" text2="CHECKOUT" />
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to place order');
-      }
-
-      // Clear cart locally (backend also clears it)
-      cartProducts.forEach((item) => updateQuantity(item._id, item.size, 0));
-      navigate('/orders');
-    } catch (err) {
-      setError('Failed to place order: ' + err.message);
-      console.error('Order submission error:', err);
-    }
-  };
-
-  return (
-    <div className="my-12 px-4 sm:px-6 lg:px-8 pt-12">
-      {/* Header Section */}
-      <div className="text-center py-12">
-        <Title text1="CHECKOUT" text2="" />
-        <p className="w-11/12 sm:w-3/4 lg:w-2/3 xl:w-1/2 mx-auto text-base sm:text-lg text-gray-600 mt-4 leading-relaxed">
-          Review your cart, enter your shipping details, and place your order.
-        </p>
-      </div>
-
-      {cartLoading ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="animate-pulse w-32 h-32 mb-6 bg-gray-200 rounded-full"></div>
-          <p className="text-gray-600">Loading your cart...</p>
-        </div>
-      ) : cartError ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <p className="text-red-600 text-sm">{cartError}</p>
-          <Link to="/collection" className="bg-black text-white px-8 py-3 text-sm font-medium rounded hover:bg-gray-800 transition-colors mt-4">
-            Continue Shopping
-          </Link>
-        </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Shipping and Payment Form */}
-          <div className="lg:w-2/3">
-            <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
-            {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={shippingInfo.firstName}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={shippingInfo.lastName}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
-                  required
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={shippingInfo.address}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={shippingInfo.city}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Postal Code</label>
-                <input
-                  type="text"
-                  name="postalCode"
-                  value={shippingInfo.postalCode}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
-                  required
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Country</label>
-                <input
-                  type="text"
-                  name="country"
-                  value={shippingInfo.country}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
-                  required
-                />
-              </div>
-            </div>
-
-            <h2 className="text-xl font-semibold mt-6 mb-4">Payment Method</h2>
-            <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="creditCard"
-                  checked={paymentMethod === 'creditCard'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-4 h-4"
-                />
-                Credit Card
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="paypal"
-                  checked={paymentMethod === 'paypal'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-4 h-4"
-                />
-                PayPal
-              </label>
-            </div>
-          </div>
-
-          {/* Order Summary */}
-          <div className="lg:w-1/3">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            <div className="bg-white border border-gray-200 rounded-2xl shadow p-4">
-              {cartProducts.length > 0 ? (
-                <>
-                  {cartProducts.map((item) => (
-                    <div key={`${item._id}-${item.size}`} className="flex items-center gap-4 border-b py-3">
-                      <img
-                        src={Array.isArray(item.image) ? item.image[0] : item.image}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded-xl"
-                        onError={(e) => console.warn(`Failed to load image for product ${item.name} (ID: ${item._id})`)}
-                        loading="lazy"
-                      />
-                      <div className="flex-1">
-                        <h3 className="text-sm font-semibold">{item.name}</h3>
-                        <p className="text-gray-600 text-sm">
-                          {currency}
-                          {typeof item.price === 'number' ? (item.price * item.quantity).toFixed(2) : item.price} (
-                          {item.quantity} x {currency}
-                          {typeof item.price === 'number' ? item.price.toFixed(2) : item.price} - {item.size})
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <button
-                            onClick={() => updateQuantity(item._id, item.size, item.quantity - 1)}
-                            className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300"
-                            disabled={item.quantity <= 1}
-                          >
-                            -
-                          </button>
-                          <span className="text-sm">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item._id, item.size, item.quantity + 1)}
-                            className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300"
-                          >
-                            +
-                          </button>
-                          <button
-                            onClick={() => updateQuantity(item._id, item.size, 0)}
-                            className="text-red-600 text-xs hover:text-red-700"
-                          >
-                            Remove
-                          </button>
+      {cartProductList.length === 0 ? (
+        <div className="text-center my-10">
+          <h2 className="text-lg font-semibold mb-4">Your cart is empty.</h2>
+          <Link
+            to="/collection"
+            className="bg-pink-500 text-white py-2 px-5 rounded hover:bg-pink-600 transition"
+          >
+            Continue Shopping
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+            
+          {/* LEFT COLUMN: Shipping & Payment Forms (2/3 width) */}
+          <div className="lg:col-span-2 space-y-8">
+                
+                {/* 🔑 STEP 1: Shipping Information */}
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h2 className="text-xl font-bold mb-4 flex items-center">
+                        <span className="bg-pink-100 text-pink-500 w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">1</span>
+                        Shipping Information
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" name="fullName" placeholder="Full Name" value={shippingInfo.fullName} onChange={handleShippingChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500" required />
+                        <input type="email" name="email" placeholder="Email Address" value={shippingInfo.email} onChange={handleShippingChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500" required />
+                        <div className="md:col-span-2">
+                             <input type="text" name="address" placeholder="Street Address" value={shippingInfo.address} onChange={handleShippingChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500 w-full" required />
                         </div>
-                      </div>
+                        <input type="text" name="city" placeholder="City" value={shippingInfo.city} onChange={handleShippingChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500" required />
+                        <input type="text" name="zipCode" placeholder="Zip/Postal Code" value={shippingInfo.zipCode} onChange={handleShippingChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500" required />
+                        <input type="text" name="country" placeholder="Country" value={shippingInfo.country} onChange={handleShippingChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500" required />
                     </div>
-                  ))}
-                  <div className="mt-4">
-                    <p className="flex justify-between text-sm">
-                      <span>Subtotal</span>
-                      <span>
-                        {currency}
-                        {getCartAmount().toFixed(2)}
-                      </span>
-                    </p>
-                    <p className="flex justify-between text-sm mt-2">
-                      <span>Shipping Fee</span>
-                      <span>
-                        {currency}
-                        {delivery_fee.toFixed(2)}
-                      </span>
-                    </p>
-                    <p className="flex justify-between text-sm font-semibold mt-2">
-                      <span>Total</span>
-                      <span>
-                        {currency}
-                        {(getCartAmount() + delivery_fee).toFixed(2)}
-                      </span>
-                    </p>
-                    <button
-                      onClick={handlePlaceOrder}
-                      disabled={cartLoading || !isAuthenticated}
-                      className={`w-full mt-4 py-2 rounded-lg text-sm font-medium transition ${
-                        cartLoading || !isAuthenticated
-                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'bg-black text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {cartLoading ? 'Processing...' : 'Place Order'}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <p className="text-gray-600 text-sm">Your cart is empty.</p>
-              )}
-            </div>
-            <Link to="/collection" className="text-sm text-gray-600 hover:text-black mt-4 inline-block">
-              Continue Shopping
-            </Link>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+                </div>
+
+                {/* 🔑 STEP 2: Payment Information (Mock Card Form) */}
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h2 className="text-xl font-bold mb-4 flex items-center">
+                        <span className="bg-pink-100 text-pink-500 w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">2</span>
+                        Payment Details
+                    </h2>
+                    <div className="space-y-4">
+                        <input type="text" name="cardNumber" placeholder="Card Number (e.g., 4000 1234 5678 9010)" value={paymentInfo.cardNumber} onChange={handlePaymentChange} maxLength="16" className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500 w-full" required />
+                        <input type="text" name="cardName" placeholder="Name on Card" value={paymentInfo.cardName} onChange={handlePaymentChange} className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500 w-full" required />
+                        <div className="flex space-x-4">
+                             <input type="text" name="expiryDate" placeholder="MM/YY" value={paymentInfo.expiryDate} onChange={handlePaymentChange} maxLength="5" className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500 w-1/2" required />
+                             <input type="text" name="cvv" placeholder="CVV" value={paymentInfo.cvv} onChange={handlePaymentChange} maxLength="4" className="p-3 border rounded-lg focus:ring-pink-500 focus:border-pink-500 w-1/2" required />
+                        </div>
+                    </div>
+                    {formError && <p className="text-red-500 text-sm mt-3">{formError}</p>}
+                </div>
+                
+                {/* 🔑 Summary of Cart Items (Optional, but good UX) */}
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                    <h2 className="text-xl font-bold mb-4">Items in Cart</h2>
+                    <div className="divide-y divide-gray-100">
+                        {cartProductList.map((product, index) => (
+                            <div key={index} className="flex justify-between items-center py-3">
+                                <div className="flex items-center space-x-3">
+                                    <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                                    <div>
+                                        <p className="font-medium text-sm">{product.name} ({product.size})</p>
+                                        <p className="text-xs text-gray-500">Qty: {product.quantity}</p>
+                                    </div>
+                                </div>
+                                <p className="font-semibold text-sm">
+                                    {currency} {(product.price * product.quantity).toFixed(2)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Order Summary & Place Order Button (1/3 width) */}
+          <div className="summary lg:col-span-1 h-fit sticky top-20">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
+                <h2 className="text-xl font-bold mb-4 text-gray-800">Final Total</h2>
+                
+                {/* Summary Details */}
+                <div className="flex justify-between mb-2 text-gray-700">
+                  <span>Subtotal:</span>
+                  <span>
+                    {currency} {getCartAmount().toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between mb-4 text-gray-700">
+                  <span>Delivery Fee:</span>
+                  <span>
+                    {currency} {delivery_fee.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between font-bold text-xl border-t pt-4">
+                  <span>TOTAL:</span>
+                  <span>
+                    {currency}
+                    {(getCartAmount() + delivery_fee).toFixed(2)}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleCheckout}
+                  disabled={loading || cartProductList.length === 0}
+                  className={`mt-5 w-full py-3 rounded text-white font-semibold transition ${
+                    loading || cartProductList.length === 0
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-pink-500 hover:bg-pink-600'
+                  }`}
+                >
+                  {loading ? 'Processing Payment...' : 'Place Order & Pay'}
+                </button>
+                <p className="text-center text-xs text-gray-500 mt-2">
+                    2-day delivery guaranteed. You will be redirected to the tracking page.
+                </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CheckoutPage;
