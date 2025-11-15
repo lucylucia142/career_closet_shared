@@ -15,14 +15,16 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50 w-full">
-      <div className="flex justify-between items-center w-full py-4">
+      {/* Full-width flex container */}
+      <div className="flex justify-between items-center w-full py-4 px-4 md:px-8 lg:px-12">
+        
         {/* Logo */}
-        <Link to="/" className="flex items-center px-4">
+        <Link to="/" className="flex items-center">
           <img src="./public/logo.png" alt="Shop Logo" className="h-10" />
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6 px-4">
+        <div className="hidden md:flex space-x-6">
           {navLinks.map(link => (
             <Link
               key={link.name}
@@ -37,7 +39,8 @@ const Navbar = () => {
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center space-x-4 px-4">
+        <div className="flex items-center space-x-4">
+
           {/* Search Icon */}
           <img
             src="/search.png"
@@ -83,7 +86,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden px-4">
+        <div className="md:hidden">
           <button
             className="text-gray-700 hover:text-black focus:outline-none"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -106,22 +109,23 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
+        <div className="md:hidden bg-white border-t border-gray-200 px-4 py-2">
           {navLinks.map(link => (
             <Link
               key={link.name}
               to={link.path}
-              className="block text-gray-700 hover:text-black px-4 py-2"
+              className="block text-gray-700 hover:text-black py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.name}
             </Link>
           ))}
+
           {user ? (
             <>
               <Link
                 to="/orders"
-                className="block text-gray-700 hover:text-black px-4 py-2"
+                className="block text-gray-700 hover:text-black py-2"
               >
                 Orders
               </Link>
@@ -130,7 +134,7 @@ const Navbar = () => {
                   logout();
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full text-left text-gray-700 hover:text-black px-4 py-2"
+                className="w-full text-left text-gray-700 hover:text-black py-2"
               >
                 Logout
               </button>
@@ -138,7 +142,7 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className="block text-gray-700 hover:text-black px-4 py-2"
+              className="block text-gray-700 hover:text-black py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Login

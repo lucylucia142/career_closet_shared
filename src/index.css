@@ -1,12 +1,12 @@
- @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
 @import "tailwindcss";
 
-a.active hr{
+a.active hr {
     display: block;
 }
 
-*{
-    font-family:outfit;
+* {
+    font-family: Outfit, sans-serif;
 }
 
 .prata-regular {
@@ -15,12 +15,13 @@ a.active hr{
   font-style: normal;
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
    display: none;
 }
 
-@media(max-width:640px) {
-  a.active{
+/* Mobile active nav highlight */
+@media (max-width: 640px) {
+  a.active {
     background-color: black;
     color: white;
   }

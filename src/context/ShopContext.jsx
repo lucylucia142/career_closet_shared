@@ -43,7 +43,7 @@ const ShopContextProvider = ({ children }) => {
           : [product.image].filter(Boolean),
         sizes:
           Array.isArray(product.sizes) && product.sizes.length > 0
-            ? product.sizes
+            ? product.sizes 
             : ["S", "M", "L", "XL"],
       }));
 
