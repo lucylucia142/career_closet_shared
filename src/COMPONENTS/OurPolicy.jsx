@@ -6,7 +6,7 @@ const OurPolicy = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/products")
+        const response = await fetch(`${API}:3000/products`)
         const data = await response.json()
 
         // You can adjust how many to show — here we take the first 3 products

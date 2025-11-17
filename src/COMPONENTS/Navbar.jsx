@@ -14,7 +14,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50 w-full">
+    <nav className="bg-white shadow-md sticky top-0 z-50 w-[100%]">
       {/* Full-width flex container */}
       <div className="flex justify-between items-center w-full py-4 px-4 md:px-8 lg:px-12">
         

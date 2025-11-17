@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import Title from '../COMPONENTS/Title';
 import SearchBar from '../COMPONENTS/SearchBar';
-
+ const API = import.meta.env.VITE_API_BASE_URL;
 const Collections = () => {
  
   
