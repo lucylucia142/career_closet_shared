@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-
+const API = import.meta.env.VITE_API_BASE_URL;
 const About = () => {
   const [products, setProducts] = useState([])
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/products')
+        const response = await fetch(`${API}:3000/products`)
         const data = await response.json()
         setProducts(data)
       } catch (error) {

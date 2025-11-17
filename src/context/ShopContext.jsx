@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+const API = import.meta.env.VITE_API_BASE_URL;
 
 export const ShopContext = createContext();
 
@@ -32,7 +33,7 @@ const ShopContextProvider = ({ children }) => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/products");
+      const res = await fetch(`${API}:3000/products`);
       if (!res.ok) throw new Error("Failed to fetch products");
       const data = await res.json();
 
@@ -87,7 +88,7 @@ const ShopContextProvider = ({ children }) => {
 
     try {
       // Send the stored ID in the Authorization header for the server to validate
-      const res = await fetch(`http://localhost:3000/user/${userId}`, {
+      const res = await fetch(`${API}:3000/user/${userId}`, {
         headers: {
           "Authorization": `Bearer ${userId}`
         }
@@ -114,7 +115,7 @@ const ShopContextProvider = ({ children }) => {
       setCartLoading(true);
       setCartError("");
       // Assuming your cart API supports the Authorization header check
-      const res = await fetch(`http://localhost:3000/cart/${userId}`, {
+      const res = await fetch(`${API}:3000/cart/${userId}`, {
         headers: { 'Authorization': `Bearer ${userId}` } // Add header to cart load
       });
       if (!res.ok) throw new Error("Failed to fetch cart");
@@ -142,7 +143,7 @@ const ShopContextProvider = ({ children }) => {
 
     if (isAuthenticated && user?._id) {
       try {
-        await fetch("http://localhost:3000/cart", {
+        await fetch(`${API}:3000/cart`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -182,12 +183,12 @@ const ShopContextProvider = ({ children }) => {
         if (quantity <= 0) {
           // DELETE request to remove the item/size from MongoDB
           await fetch(
-            `http://localhost:3000/cart/${user._id}/${itemId}/${size}`,
+            `${API}:3000/cart/${user._id}/${itemId}/${size}`,
             { method: "DELETE", headers: authHeader }
           );
         } else {
           // PUT request to update the quantity in MongoDB
-          await fetch(`http://localhost:3000/cart/${user._id}`, {
+          await fetch(`${API}:3000/cart/${user._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", ...authHeader },
             body: JSON.stringify({ itemId, size, quantity }),

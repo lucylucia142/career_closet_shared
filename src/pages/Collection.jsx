@@ -5,6 +5,9 @@ import Title from '../COMPONENTS/Title';
 import SearchBar from '../COMPONENTS/SearchBar';
 
 const Collections = () => {
+ 
+  
+
   const { products, loading, search, currency, showSearch } = useContext(ShopContext);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);

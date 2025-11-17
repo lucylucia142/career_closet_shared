@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../COMPONENTS/Title";
 import { Link } from "react-router-dom";
+const API = import.meta.env.VITE_API_BASE_URL;
 
 const OrdersPage = () => {
   const { user, currency } = useContext(ShopContext);
@@ -19,7 +20,7 @@ const OrdersPage = () => {
     const fetchOrders = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/orders/user/${user._id}`,
+          `${API}:3000/orders/user/${user._id}`,
           { headers: { "Content-Type": "application/json" } }
         );
 
