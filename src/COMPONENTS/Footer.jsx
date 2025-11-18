@@ -9,7 +9,7 @@ const Footer = () => {
         <div>
           <img src={"./public/logo.png"} className='mb-5 w-32' alt="" />
           <p className='w-full md:w-2/3 text-gray-600'>
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+           Explore our full range of products, curated for quality, style, and modern elegance.
           </p>
         </div>
 

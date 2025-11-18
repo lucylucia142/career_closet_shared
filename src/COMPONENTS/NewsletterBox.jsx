@@ -23,7 +23,7 @@ const NewsletterBox = () => {
         Subscribe now & get 20% off
       </h2>
       <p className="text-gray-600 mt-2 max-w-lg mx-auto">
-        This is simply dummy text of the printing and typesetting industry.
+       Explore our full range of products, curated for quality, style, and modern elegance.
       </p>
 
       {/* Email Input & Button */}
