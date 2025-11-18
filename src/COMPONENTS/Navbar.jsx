@@ -20,7 +20,7 @@ const Navbar = () => {
         
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <img src="./public/logo.png" alt="Shop Logo" className="h-10" />
+          <img src="./logo.png" alt="Shop Logo" className="h-10" />
         </Link>
 
         {/* Desktop Links */}
