@@ -94,37 +94,7 @@ const Collections = () => {
 
       <div className="flex flex-col sm:flex-row gap-1 sm:gap-6">
         {/* Filters */}
-        <div className="min-w-40">
-          <p onClick={() => setShowFilter(!showFilter)} className="my-1 text-lg flex items-center cursor-pointer gap-1">
-            FILTERS <span className={`sm:hidden inline-block transition-transform ${showFilter ? 'rotate-90' : ''}`}>▶</span>
-          </p>
-
-          {/* Category Filter */}
-          <div className={`border border-gray-300 pl-3 py-2 mt-4 ${showFilter ? '' : 'hidden'} sm:block`}>
-            <p className="mb-2 text-xs font-medium">CATEGORIES</p>
-            <div className="flex flex-col gap-1 text-xs font-light text-gray-700">
-              {['Medicine', 'Construction', 'Hospitality'].map(cat => (
-                <label key={cat} className="flex gap-1 items-center">
-                  <input type="checkbox" className="w-2.5" value={cat} onChange={toggleCategory} />
-                  {cat}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* SubCategory Filter */}
-          <div className={`border border-gray-300 pl-3 py-2 my-3 ${showFilter ? '' : 'hidden'} sm:block`}>
-            <p className="mb-2 text-xs font-medium">TYPE</p>
-            <div className="flex flex-col gap-1 text-xs font-light text-gray-700">
-              {['Topwear', 'Bottomwear', 'Winterwear'].map(sub => (
-                <label key={sub} className="flex gap-1 items-center">
-                  <input type="checkbox" className="w-2.5" value={sub} onChange={toggleSubCategory} />
-                  {sub}
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
+      
 
         {/* Products */}
         <div className="flex-1">

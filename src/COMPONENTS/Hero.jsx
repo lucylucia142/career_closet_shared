@@ -26,7 +26,7 @@ const Hero = () => {
 
           <div className='flex items-center gap-3'>
             <button
-              onClick={() => navigate('/Collection')}
+              onClick={() => navigate('product/68503612892f40c328501dfa')}
               className='font-semibold text-sm sm:text-base cursor-pointer hover:underline tracking-wide'
             >
               SHOP NOW

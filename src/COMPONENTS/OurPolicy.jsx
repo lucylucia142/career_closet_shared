@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-
+const API = import.meta.env.VITE_API_BASE_URL;
 const OurPolicy = () => {
   const [products, setProducts] = useState([])
 

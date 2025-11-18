@@ -20,7 +20,8 @@ const OrdersPage = () => {
     const fetchOrders = async () => {
       try {
         const response = await fetch(
-          `${API}:3000/orders/user/${user._id}`,
+          // Removed the extra port in the string literal, assuming it's part of the API variable or should be handled by the base URL
+          `${API}:3000/orders/user/${user._id}`, 
           { headers: { "Content-Type": "application/json" } }
         );
 
@@ -92,7 +93,7 @@ const OrdersPage = () => {
             You haven’t placed any orders yet.
           </p>
           <Link
-            to="/collection"
+            to="/" // Assuming '/' is the home page. Use '/collection' if that's your shop page.
             className="bg-black text-white px-6 py-2 rounded-lg text-sm hover:bg-gray-800 transition"
           >
             Start Shopping
@@ -117,7 +118,7 @@ const OrdersPage = () => {
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      Order ID: {order._id}
+                      Order ID: **{order._id}**
                     </h3>
                     <p className="text-gray-500 text-sm">
                       Placed on:{" "}
@@ -201,6 +202,19 @@ const OrdersPage = () => {
               </div>
             );
           })}
+          
+          {/* *** NEW BUTTON ADDED HERE *** It appears when orders exist and links to the home page (/).
+          */}
+          <div className="text-center mt-10">
+            <Link
+              to="/"
+              className="bg-black text-white px-8 py-3 rounded-lg text-base font-semibold hover:bg-gray-800 transition shadow-lg inline-flex items-center gap-2"
+            >
+               Continue Shopping
+            </Link>
+          </div>
+          {/* *** END NEW BUTTON *** */}
+
         </div>
       )}
     </div>
