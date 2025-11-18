@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -16,7 +16,7 @@ const ProductDetail = () => {
 
   const fetchProductData = async () => {
     try {
-      const res = await fetch(`${API}:3000/products/${productId}`);
+      const res = await fetch(`${API_BASE_URL}:3000/products/${productId}`);
       if (!res.ok) throw new Error('Product not found');
       const data = await res.json();
 

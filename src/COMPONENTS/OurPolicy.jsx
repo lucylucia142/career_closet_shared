@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react"
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const OurPolicy = () => {
   const [products, setProducts] = useState([])
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${API}:3000/products`)
+        const response = await fetch(`${API_BASE_URL}:3000/products`)
         const data = await response.json()
 
         // You can adjust how many to show — here we take the first 3 products

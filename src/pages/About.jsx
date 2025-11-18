@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // Assuming you have defined your API variable correctly elsewhere
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const About = () => {
   const [products, setProducts] = useState([]);
@@ -15,7 +15,7 @@ const About = () => {
     const fetchProducts = async () => {
       try {
         // Ensure the port is correct, though often it's best to let the proxy handle it in production
-        const response = await fetch(`${API}:3000/products`);
+        const response = await fetch(`${API_BASE_URL}:3000/products`);
         const data = await response.json();
         setProducts(data);
       } catch (error) {

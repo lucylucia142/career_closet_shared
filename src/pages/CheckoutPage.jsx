@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Title from '../COMPONENTS/Title';
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL= import.meta.env.VITE_API_BASE_URL;
 const CheckoutPage = () => {
   const {
     products,
@@ -132,7 +132,7 @@ const CheckoutPage = () => {
         paymentStatus: 'Paid', 
       };
 
-      const response = await fetch(`${API}:3000/orders`, {
+      const response = await fetch(`${API_BASE_URL}:3000/orders`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

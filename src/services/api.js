@@ -1,5 +1,5 @@
 // API Service Layer for Career Closet Backend
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
 
 // Helper function to get stored user credentials for Basic Auth
 const getUserCredentials = () => {
@@ -35,7 +35,7 @@ const createHeaders = (includeAuth = true) => {
 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
-  const url = `${API_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
   const config = {
     headers: createHeaders(options.includeAuth !== false),
     ...options,

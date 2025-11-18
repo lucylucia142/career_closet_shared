@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const Login = () => {
   const [currentState, setCurrentState] = useState('Sign Up');
   const [formData, setFormData] = useState({
@@ -44,7 +44,7 @@ const Login = () => {
           throw new Error('Password must be at least 8 characters');
         }
 
-        const response = await fetch(`${API}:3000/signup`, {
+        const response = await fetch(`${API_BASE_URL}:3000/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -65,7 +65,7 @@ const Login = () => {
         setFormData({ name: '', email: formData.email, password: '', confirmPassword: '' });
       } else {
         // Login
-        const response = await fetch(`${API}:3000/checkpassword`, {
+        const response = await fetch(`${API_BASE_URL}:3000/checkpassword`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

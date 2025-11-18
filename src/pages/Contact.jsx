@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
- const API = import.meta.env.VITE_API_BASE_URL;
+ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -16,7 +16,7 @@ const Contact = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${API}:3000/products`) // adjust to your backend URL
+        const res = await fetch(`${API_BASE_URL}:3000/products`) // adjust to your backend URL
         const data = await res.json()
         setProducts(data)
       } catch (error) {

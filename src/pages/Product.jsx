@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import RelatedProducts from '../COMPONENTS/RelatedProducts';
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const Product = () => {
   const { productId } = useParams();
   const { currency, addToCart } = useContext(ShopContext);
@@ -14,7 +14,7 @@ const Product = () => {
   // Fetch product directly from MongoDB backend
   const fetchProductData = async () => {
     try {
-      const res = await fetch(`${API}:3000/products/${productId}`);
+      const res = await fetch(`${API_BASE_URL}:3000/products/${productId}`);
       if (!res.ok) throw new Error('Product not found');
       const data = await res.json();
 

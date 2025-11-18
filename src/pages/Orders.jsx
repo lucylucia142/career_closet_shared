@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../COMPONENTS/Title";
 import { Link } from "react-router-dom";
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const OrdersPage = () => {
   const { user, currency } = useContext(ShopContext);
@@ -21,7 +21,7 @@ const OrdersPage = () => {
       try {
         const response = await fetch(
           // Removed the extra port in the string literal, assuming it's part of the API variable or should be handled by the base URL
-          `${API}:3000/orders/user/${user._id}`, 
+          `${API_BASE_URL}:3000/orders/user/${user._id}`, 
           { headers: { "Content-Type": "application/json" } }
         );
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../COMPONENTS/Title";
-const API = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const OrderDetailsPage = () => {
   const { orderId } = useParams();
@@ -29,7 +29,7 @@ const OrderDetailsPage = () => {
       try {
         // You may need a new backend endpoint for fetching a single order by ID
         const response = await fetch(
-          `${API}:3000/orders/${orderId}`, // Assumes backend route like /orders/:orderId
+          `${API_BASE_URL}:3000/orders/${orderId}`, // Assumes backend route like /orders/:orderId
           { headers: { "Authorization": `Bearer ${user._id}` } } // Good practice to authenticate
         );
 
